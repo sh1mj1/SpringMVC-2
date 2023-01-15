@@ -851,3 +851,86 @@ public String literal(Model model) {
 [http://localhost:8080/basic/literal](http://localhost:8080/basic/literal)
 
 ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/390e8382-3b7b-44ed-b75e-38d7e83149e5/Untitled.png)
+
+# 9. 연산
+
+타임리프 연산은 자바와 크게 다르지 않습니다.. 
+
+HTML안에서 사용하기 때문에 HTML 엔티티를 사용하는 부분만 주의하면 됩니다.
+
+`BasicController` 추가
+
+```java
+@GetMapping
+public String operation(Model model) {
+    model.addAttribute("nullData", null);
+    model.addAttribute("data", "Spring!");
+    return "basic/operation";
+}
+```
+
+`/resources/templates/basic/operation.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul>
+    <li>산술 연산
+        <ul>
+            <li>10 + 2 = <span th:text="10 + 2"></span></li>
+            <li>10 % 2 == 0 = <span th:text="10 % 2 == 0"></span></li>
+        </ul>
+    </li>
+    <li>비교 연산
+        <ul>
+            <li>1 > 10 = <span th:text="1 &gt; 10"></span></li>
+            <li>1 gt 10 = <span th:text="1 gt 10"></span></li>
+            <li>1 >= 10 = <span th:text="1 >= 10"></span></li>
+            <li>1 ge 10 = <span th:text="1 ge 10"></span></li>
+            <li>1 == 10 = <span th:text="1 == 10"></span></li>
+            <li>1 != 10 = <span th:text="1 != 10"></span></li>
+        </ul>
+    </li>
+    <li>조건식
+        <ul>
+            <li>(10 % 2 == 0)? '짝수':'홀수' = <span th:text="(10 % 2 == 0)?
+'짝수':'홀수'"></span></li>
+        </ul>
+    </li>
+    <li>Elvis 연산자
+        <ul>
+            <li>${data}?: '데이터가 없습니다.' = <span th:text="${data}?: '데이터가 없습니다.'"></span></li>
+            <li>${nullData}?: '데이터가 없습니다.' = <span th:text="${nullData}?:'데이터가 없습니다.'"></span></li>
+        </ul>
+    </li>
+    <li>No-Operation
+        <ul>
+            <li>${data}?: _ = <span th:text="${data}?: _">데이터가 없습니다.</span>
+            </li>
+            <li>${nullData}?: _ = <span th:text="${nullData}?: _">데이터가 없습니다.</span></li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
+```
+
+[http://localhost:8080/basic/operation](http://localhost:8080/basic/operation)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/34971418-6f0e-441a-ae9f-b056cb7d1fb6/Untitled.png)
+
+- 비교연산: HTML 엔티티를 사용해야 하는 부분을 주의하자,
+    - (gt), < (lt), >= (ge), <= (le), ! (not), == (eq), != (neq, ne)
+
+- 조건식: 자바의 조건식과 유사하다.
+- Elvis 연산자: 조건식의 편의 버전
+- No-Operation: _ 인 경우 마치 타임리프가 실행되지 않는 것 처럼 동작한다.
+    - 이것을 잘 사용하면 HTML의 내용 그대로 활용할 수 있다.
+    - 마지막 예를 보면 데이터가 없습니다. 부분이 그대로 출력된다.
+
+    
