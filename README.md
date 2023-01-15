@@ -744,3 +744,110 @@ public String link(Model model) {
 - `hello` : 상대 경로
 
 참고 [https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#link-urls](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#link-urls)
+
+
+# 8. 리터럴
+
+리터럴은 소스 코드상에 고정된 값을 말하는 용어입니다.
+예를 들어서 다음 코드에서 "Hello" 는 문자 리터럴이고 10 , 20 는 숫자 리터럴이다.
+
+```java
+String a = "Hello"
+int a = 10 * 20
+```
+
+> 참고
+이 내용이 쉬워 보이지만 처음 타임리프를 사용하면 많이 실수하니 잘 보아둡시다.
+> 
+
+타임리프는 다음과 같은 리터럴이 있다.
+
+- 문자: 'hello'
+- 숫자: 10
+- Boolean: true , false
+- null: null
+
+타임리프에서 문자 리터럴은 항상  `'` (작은 따옴표)로 감싸야 한다.
+
+```java
+<span th:text="'hello'">
+```
+
+그런데 문자를 항상  `‘`  로 감싸는 것은 너무 귀찮은 일이다.
+
+타임 리프에서는 공백이 없이 쭉 이어진다면 하나의 의미있는 토큰으로 인지해서 다음과 같이 작은 따옴표를 생략할 수 있습니다.
+
+- `‘A-Z’`
+- `‘a-z’`
+- `‘0-9’`
+- `‘[]’`
+- `‘.’`
+- `‘-’`
+- `‘_’`
+
+즉, 아래처럼 가능하다.
+
+```java
+<span th:text="hello">
+```
+
+오류
+
+```java
+<span th:text="hello world!"></span>
+```
+
+문자 리터럴은 원칙상  `‘`  로 감싸야 한다. 중간에 공백이 있다면 하나의 의미있는 토큰으로도 인식되지 않습니다.
+
+오류 수정
+
+```java
+<span th:test="'hello world!'"></span>
+```
+
+이렇게  `‘`  로 감싸면 정상 동작합니다.
+
+`BasicController` 추가
+
+```java
+@GetMapping("/literal")
+public String literal(Model model) {
+    model.addAttribute("data", "Spring!");
+    return "basic/literal";
+}
+```
+
+`/resources/templates/basic/literal.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>리터럴</h1>
+<ul>
+    <!--주의! 다음 주석을 풀면 예외가 발생함-->
+    <!-- <li>"hello world!" = <span th:text="hello world!"></span></li>-->
+    <li>'hello' + ' world!' = <span th:text="'hello' + ' world!'"></span></li>
+    <li>'hello world!' = <span th:text="'hello world!'"></span></li>
+    <li>'hello ' + ${data} = <span th:text="'hello ' + ${data}"></span></li>
+    <li>리터럴 대체 |hello ${data}| = <span th:text="|hello ${data}|"></span></li>
+</ul>
+</body>
+</html>
+```
+
+**리터럴 대체(Literal substitutions)**
+
+```java
+<span th:text="|hello ${data}|">
+```
+
+마지막의 리터럴 대체 문법을 사용하면 마치 템플릿을 사용하는 것 처럼 편리합니다.
+
+[http://localhost:8080/basic/literal](http://localhost:8080/basic/literal)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/390e8382-3b7b-44ed-b75e-38d7e83149e5/Untitled.png)
