@@ -1,5 +1,13 @@
 # SpringMVC-2
 
+타임리프 텍스트, 변수, 객체, 날짜, URL 관련 내용 정리-> https://sh1mj1-log.tistory.com/62
+
+리터럴, 연산, 반복, 조건, 주석, 블록 관련 내용 정리 -> https://sh1mj1-log.tistory.com/63
+
+자바스크립트 인라인, 템플릿 조각/레이아웃 관련 내용 정리 ->https://sh1mj1-log.tistory.com/64
+
+# 
+
 
 # 1. 프로젝트 생성
 
