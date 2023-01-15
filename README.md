@@ -1707,3 +1707,107 @@ public String layout(){
 이 방식은 사실 앞서 배운 코드 조각을 조금 더 적극적으로 사용하는 방식이다. 쉽게 이야기해서 레이아웃 개념을 두고, 그 레이아웃에 필요한 코드 조각을 전달해서 완성하는 것으로 이해하면 된다.
 
 
+# 18. 템플릿 레이아웃2
+
+### 템플릿 레이아웃 확장
+
+앞서 이야기한 개념을 `<head>` 정도에만 적용하는게 아니라 `<html>` 전체에 적용할 수도 있다.
+
+`TemplateController` 에 추가
+
+```java
+@GetMapping("/layoutExtend")
+public String layoutExtend(){
+    return "template/layoutExtend/layoutExtendMain";
+}
+```
+
+`/resources/templates/template/layoutExtend/layoutFile.html`
+
+```html
+<!DOCTYPE html>
+<html th:fragment="layout (title, content)" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="${title}">레이아웃 타이틀</title>
+</head>
+
+<body>
+<h1>레이아웃 H1</h1>
+<div th:replace="${content}">
+    <p>레이아웃 컨텐츠</p>
+</div>
+
+<footer>
+    레이아웃 푸터
+</footer>
+
+</body>
+
+</html>
+```
+
+`/resources/templates/template/layoutExtend/layoutExtendMain.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{template/layoutExtend/layoutFile :: layout(~{::title},~{::section})}">
+
+<head>
+    <title>메인 페이지 타이틀</title>
+</head>
+
+<body>
+<section>
+    <p>메인 페이지 컨텐츠</p>
+    <div>메인 페이지 포함 내용</div>
+</section>
+</body>
+
+</html>
+```
+
+[http://localhost:8080/template/layoutExtend](http://localhost:8080/template/layoutExtend) 결과
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/9838658b-21d6-4801-9d22-90a6769850ad/Untitled.png)
+
+페이지 소스 보기 결과
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>메인 페이지 타이틀</title>
+</head>
+
+<body>
+<h1>레이아웃 H1</h1>
+<section>
+    <p>메인 페이지 컨텐츠</p>
+    <div>메인 페이지 포함 내용</div>
+</section>
+
+<footer>
+    레이아웃 푸터
+</footer>
+
+</body>
+
+</html>
+```
+
+`layoutFile.html` 을 보면 기본 레이아웃을 가지고 있는데, `<html>` 에 `th:fragment` 속성이 정의되어 있다. 이 레이아웃 파일을 기본으로 하고 여기에 필요한 내용을 전달해서 부분부분 변경하는 것으로 이해하면 된다.
+
+`layoutExtendMain.html` 는 현재 페이지인데, `<html>` 자체를 `th:replace` 를 사용해서 변경하는 것을 확인할 수 있다. 결국 `layoutFile.html` 에 필요한 내용을 전달하면서 `<html>` 자체를 `layoutFile.html` 로 변경한다.
+
+조금 헷갈릴 수 있는데 이전 템플릿 레이아웃 1 을 다시 보고 이해를 완전히 한다면 어렵지 않게 이해할 수 있을 것입니다.
+
+이렇게 설계를 하면 장점과 단점이 있습니다.
+
+장점 - 템플릿 레이아웃의 부분 레이아웃을 조금만 바꾸어도 각자 다른 페이지를 쉽게 만들 수 있습니다. 
+
+예를 들어 중복되는 본문 내용이 많은 페이지를 여러 개 만들어야 한다면 위의 예제에서의 `layoutFile.html` 에 중복되는 내용을 넣고 추가/수정되는 내용을 전달받도록 만듭니다.
+
+그리고 나서 따로 여러 개의 `layoutExtendMain.html` 을 만들고 이 레이아웃이 `layoutFile.html` 을 `replace` 하도록 한 후 추가/수정되는 내용을 전달하도록 만들면 됩니다.
+
+단점 - 위의 간단한 예제로만 보아도 헷갈리고 처음에 설계를 잘 해야 합니다. 즉, 체계적으로 잘 관리해야 합니다.
