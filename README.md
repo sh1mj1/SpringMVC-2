@@ -1206,3 +1206,86 @@ public String condition(Model model) {
 만약 타임리프가 적용되지 않은 정적 리소스는 아래와 같이 표시된다.
 
 ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8f17137f-4c04-48ce-8e2c-65fe9233d7d4/Untitled.png)
+
+
+# 13. 주석
+
+html 주석과 타임리프 주석이 조금 차이가 있어서 정리를 한 번 해봅시다.
+
+`BasicController` 추가
+
+```java
+@GetMapping("/comments")
+public String comments(Model model) {
+    model.addAttribute("data", "Spring!");
+    return "basic/comments";
+}
+```
+
+`/resources/templates/basic/comments.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1>예시</h1>
+<span th:text="${data}">html data</span>
+
+<h1>1. 표준 HTML 주석</h1>
+<!--
+<span th:text="${data}">html data</span>
+-->
+
+<h1>2. 타임리프 파서 주석</h1>
+<!--/* [[${data}]] */-->
+
+<!--/*-->
+<span th:text="${data}">html data</span>
+<!--*/-->
+
+<h1>3. 타임리프 프로토타입 주석</h1>
+<!--/*/
+<span th:text="${data}">html data</span>
+/*/-->
+
+</body>
+</html>
+```
+
+[http://localhost:8080/basic/comments](http://localhost:8080/basic/comments)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c88aef05-6fef-4b4a-be8a-4317fb0a6683/Untitled.png)
+
+소스 보기
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c22409bf-af76-4492-a0f5-3799acb4b829/Untitled.png)
+
+위에서 부터 차례대로 표준 HTML 주석, 타임리프 파서 주석, 타임리프 프로토타입 주석 이다.
+
+1. 표준 HTML 주석
+
+자바스크립트의 표준 HTML 주석은 **타임리프가 렌더링 하지 않고, 그대로 남겨둔다.**
+
+그래서 페이지 소스를 보면 <!— … -!> 가 그대로 남아있다.
+
+1. 타임리프 파서 주석
+
+타임리프 파서 주석은 **타임리프의 진짜 주석**이다. 렌더링에서 주석 부분을 제거한다.
+
+그래서 페이지 소스를 보면 아무것도 남아있지 않다.
+
+1. 타임리프 프로토타입 주석
+
+타임리프 프로토타입은 약간 특이한데, HTML 주석에 약간의 구문을 더했다.
+
+HTML 파일을 웹 브라우저에서 그대로 열어보면 HTML 주석이기 때문에 이 부분이 웹 브라우저가
+렌더링하지 않는다. 타임리프 렌더링을 거치면 이 부분이 정상 렌더링 된다.
+
+쉽게 이야기해서 **HTML 파일을 그대로 열어보면 주석처리**가 되지만, **타임리프를 렌더링 한 경우에만
+보이는 기능**이다
+
