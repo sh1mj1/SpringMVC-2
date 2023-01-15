@@ -1458,3 +1458,160 @@ public String javascript(Model model) {
 위 코드 추가 후 페이지 소스 보기 결과
 
 ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4b739129-5df9-43d9-af80-02897b236360/Untitled.png)
+
+
+# 16. 템플릿 조각
+
+웹 페이지를 개발할 때는 공통 영역이 많이 있다. 
+
+예를 들어서 상단 영역이나 하단 영역, 좌측 카테고리 등등 여러 페이지에서 함께 사용하는 영역들이 있다. 
+
+이런 부분을 코드를 복사해서 사용한다면 변경 시 여러 페이지를 다 수정해야 하므로 상당히 비효율 적이다. 
+
+타임리프는 이런 문제를 해결하기 위해 템플릿 조각과 레이아웃 기능을 지원한다.
+
+> 주의! 템플릿 조각과 레이아웃 부분은 직접 실행해보아야 이해된다.
+> 
+
+### 템플릿 조각
+
+`/resources/templates/template/fragment/footer.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="copy">
+    푸터 자리 입니다.
+</footer>
+<footer th:fragment="copyParam (param1, param2)">
+    <p>파라미터 자리 입니다.</p>
+    <p th:text="${param1}"></p>
+    <p th:text="${param2}"></p>
+</footer>
+</body>
+</html>
+```
+
+`th:fragment` 가 있는 태그는 다른곳에 포함되는 코드 조각으로 이해하면 된다.
+
+`/resources/templates/template/fragment/fragmentMain.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>부분 포함</h1>
+<h2>부분 포함 insert</h2>
+<div th:insert="~{template/fragment/footer :: copy}"></div>
+
+<h2>부분 포함 replace</h2>
+<div th:replace="~{template/fragment/footer :: copy}"></div>
+
+<h2>부분 포함 단순 표현식</h2>
+<div th:replace="template/fragment/footer :: copy"></div>
+
+<h1>파라미터 사용</h1>
+<div th:replace="~{template/fragment/footer :: copyParam ('데이터1', '데이터2')}"></div>
+
+</body>
+</html>
+```
+
+- `template/fragment/footer :: copy`
+    - `template/fragment/footer.html` 템플릿에 있는 `th:fragment="copy"` 라는 부분을 템플릿 조각으로 가져와서 사용한다는 의미이다.
+
+[http://localhost:8080/template/fragment](http://localhost:8080/template/fragment)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0325aff3-c9cf-4da3-8e67-4ac2c9e6f45f/Untitled.png)
+
+페이지 소스 보기
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/055f0057-4817-4588-9d3e-4cd6e46fae35/Untitled.png)
+
+`footer.html` 의 `copy` 부분
+
+```html
+<footer th:fragment="copy">
+		푸터 자리 입니다.
+</footer>
+```
+
+### 부분 포함 insert
+
+```html
+<div th:insert="~{template/fragment/footer :: copy}"></div>
+```
+
+```html
+<h2>부분 포함 insert</h2>
+<div>
+<footer>
+		푸터 자리 입니다.
+</footer>
+</div>
+```
+
+`th:insert` 를 사용하면 현재 태그( div ) 내부에 추가한다.
+
+### 부분 포함 replace
+
+```html
+<div th:replace="~{template/fragment/footer :: copy}"></div>
+```
+
+```html
+<h2>부분 포함 replace</h2>
+<footer>
+푸터 자리 입니다.
+</footer>
+```
+
+`th:replace` 를 사용하면 현재 태그( div )를 대체한다.
+
+### 부분 포함 단순 표현식
+
+```html
+<div th:replace="template/fragment/footer :: copy"></div>
+```
+
+```html
+<h2>부분 포함 단순 표현식</h2>
+<footer>
+		푸터 자리 입니다.
+</footer>
+```
+
+`~{...}`  를 사용하는 것이 원칙이지만 템플릿 조각을 사용하는 코드가 단순하면 이 부분을 생략할 수 있다.
+
+### 파라미터 사용
+
+다음과 같이 파라미터를 전달해서 동적으로 조각을 렌더링 할 수도 있다.
+
+```html
+<div th:replace="~{template/fragment/footer :: copyParam ('데이터1', '데이터2')}"></
+div>
+```
+
+```html
+<h1>파라미터 사용</h1>
+<footer>
+<p>파라미터 자리 입니다.</p>
+<p>데이터1</p>
+<p>데이터2</p>
+</footer>
+```
+
+`footer.html` 의 `copyParam` 부분
+
+```html
+<footer th:fragment="copyParam (param1, param2)">
+		<p>파라미터 자리 입니다.</p>
+		<p th:text="${param1}"></p>
+		<p th:text="${param2}"></p>
+</footer>
+```
