@@ -1340,3 +1340,121 @@ public String block(Model model) {
 
 타임리프의 특성상 HTML 태그안에 속성으로 기능을 정의해서 사용하는데, 위 예처럼 이렇게 사용하기
 애매한 경우에 사용하면 된다. `th:block` 은 렌더링시 제거된다.
+
+
+# 15. 자바스크립트 인라인
+
+타임리프는 자바스크립트에서 타임리프를 편리하게 사용할 수 있는 자바스크립트 인라인 기능을 제공한다.
+
+자바스크립트 인라인 기능은 다음과 같이 적용하면 된다.
+
+`BasicController` 추가
+
+```java
+@GetMapping("/javascript")
+public String javascript(Model model) {
+    model.addAttribute("user", new User("userA", 10));
+    addUsers(model);
+
+    return "basic/javascript";
+}
+```
+
+`/resources/templates/basic/javascript.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- 자바스크립트 인라인 사용 전 -->
+<script>
+    var username = [[${user.username}]];
+    var age = [[${user.age}]];
+    //자바스크립트 내추럴 템플릿
+    var username2 = /*[[${user.username}]]*/ "test username";
+    //객체
+    var user = [[${user}]];
+</script>
+<!-- 자바스크립트 인라인 사용 후 -->
+<script th:inline="javascript">
+    var username = [[${user.username}]];
+    var age = [[${user.age}]];
+    //자바스크립트 내추럴 템플릿
+    var username2 = /*[[${user.username}]]*/ "test username";
+    //객체
+    var user = [[${user}]];
+</script>
+</body>
+</html>
+```
+
+페이지 소스 보기
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/12cb6a5e-8193-44ce-a01c-f1b5cbae2075/Untitled.png)
+
+자바 스크립트 인라인 사용 전 코드는 우리가 작성한 코드와 비교하여 3 가지 문제가 있다.
+
+### 문제 1 - 텍스트 렌더링
+
+10번 줄에서 자바스크립트 인라인 사용 전 코드에서 ReferenceError 가 발생하는 것을 확인할 수 있다.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6cfeb4d4-ae26-4c18-afff-d0d9851af79e/Untitled.png)
+
+- 우리가 작성한 코드 - `var username = [[${user.username}]];`
+- 인라인 사용 전 - `var username = userA;`
+- 인라인 사용 후 - `var username = "userA";`
+
+인라인 사용 전 렌더링 결과를 보면 userA 라는 변수 이름이 그대로 남아있다. 
+
+타임리프 입장에서는 정확하게 렌더링 한 것이지만 아마 개발자가 기대한 것은 다음과 같은 `"userA"`라는 문자일 것이다. 결과적으로 `userA` 가 변수명으로 사용되어서 자바스크립트 오류가 발생한다. 다음으로 나오는 숫자 `age` 의 경우에는 " 가 필요 없기 때문에 정상 렌더링 된다.
+
+인라인 사용 후 렌더링 결과를 보면 문자 타입인 경우 " 를 포함해준다. 추가로 자바스크립트에서 문제가 될
+수 있는 문자가 포함되어 있으면 이스케이프 처리도 해준다. 예)  `"`   →   `\"`
+
+### 문제 2 - 자바스크립트 내추럴 템플릿
+
+타임리프는 HTML 파일을 직접 열어도 동작하는 내추럴 템플릿 기능을 제공한다. 자바스크립트 인라인 기능을 사용하면 주석을 활용해서 이 기능을 사용할 수 있다.
+
+- 우리가 작성한 코드(타임리프 파서 주석)
+    - `var username2 = /*[[${user.username}]]*/ "test username";`
+
+- 인라인 사용 전 (13번 줄) - `var username2 = /*userA*/ "test username";`
+- 인라인 사용 후                - `var username2 = "userA";`
+
+- 인라인 사용 전 결과를 보면 정말 순수하게 그대로 해석을 해버렸다. 따라서 내추럴 템플릿 기능이 동작하지 않고, 심지어 렌더링 내용이 주석처리 되어 버린다.
+- 인라인 사용 후 결과를 보면 주석 부분이 제거되고, 기대한 `"userA"` 가 정확하게 적용된다.
+
+### 문제 3 - 객체
+
+타임리프의 자바스크립트 인라인 기능을 사용하면 객체를 JSON으로 자동으로 변환해준다.
+
+- 우리가 작성한 코드
+    - `var user = [[${user}]];`
+
+- 인라인 사용 전  -  `var user = BasicController.User(username=userA, age=10);`
+- 인라인 사용 후  -  `var user = {"username":"userA","age":10};`
+
+### 자바 스크립트 each
+
+자바스크립트 인라인은 `each`를 지원하는데, 다음과 같이 사용한다.
+
+`/resources/templates/basic/javascript.html` 에 추가
+
+```jsx
+<!-- 자바스크립트 인라인 each -->
+<script th:inline="javascript">
+
+    [# th:each="user, stat: ${users}"]
+    var user[[${stat.count}]] = [[${user}]];
+    [/]
+
+</script>
+```
+
+위 코드 추가 후 페이지 소스 보기 결과
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4b739129-5df9-43d9-af80-02897b236360/Untitled.png)
