@@ -671,6 +671,76 @@ public String date(Model model){
 </html>
 ```
 
-
-
 이 내용은 그냥 필요할 때 찾아보면 됩니다.
+
+## 7. URL 링크
+
+타임리프 URL 생성 문법은 `@{ …. }` 입니다.
+
+`*BasicController*` 추가
+
+```java
+@GetMapping("/link")
+public String link(Model model) {
+    model.addAttribute("param1", "data1");
+    model.addAttribute("param2", "data2");
+
+    return "basic/link";
+}
+```
+
+`*/resources/templates/basic/**link.html***`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>URL 링크</h1>
+<ul>
+    <li><a th:href="@{/hello}">basic url</a></li>
+    <li><a th:href="@{/hello(param1=${param1}, param2=${param2})}">hello queryparam</a></li>
+    <li><a th:href="@{/hello/{param1}/{param2}(param1=${param1}, param2=${param2})}">path variable</a></li>
+    <li><a th:href="@{/hello/{param1}(param1=${param1}, param2=${param2})}">path variable + query parameter</a></li>
+</ul>
+</body>
+</html>
+```
+
+실행  [http://localhost:8080/basic/link](http://localhost:8080/basic/link)
+
+
+
+ 
+
+단순한 URL
+
+- `@{/hello}` → `/hello`
+
+쿼리 파라미터
+
+- `@{/hello(param1=${param1}, param2=${param2})}`
+    - → `/hello?param1=data1&param2=data2`
+    - `()` 에 있는 부분은 쿼리 파라미터로 처리된다.
+
+경로 변수 (Path Variable)
+
+- `@{/hello/{param1}/{param2}(param1=${param1}, param2=${param2})}`
+    - → `/hello/data1/data2`
+    - URL 경로 상에 변수가 있으면 () 부분은 경로 변수로 처리된다.
+
+경로 변수 + 쿼리 파라미터
+
+- `@{/hello/{param1}(param1=${param1}, param2=${param2})}`
+    - → `/hello/data1?param2=data2`
+    - 경로 변수와 쿼리 파라미터를 함께 사용할 수 있다.
+
+상대경로, 절대경로, 프로토콜 기준을 표현할 수 도 있다.
+
+- `/hello` : 절대 경로
+- `hello` : 상대 경로
+
+참고 [https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#link-urls](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#link-urls)
