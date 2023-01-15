@@ -488,5 +488,92 @@ static class User{
 [http://localhost:8080/basic/variable](http://localhost:8080/basic/variable)  결과
 
 
+## 5. 기본 객체들
 
-실행 결과
+타임리프는 기본 객체들을 제공한다.
+
+- `${#request}`
+- `${#response}`
+- `${#session}`
+- `${#servletContext}`
+- `${#locale}`
+
+그런데 #request는 `HttpServletRequest` 객체가 그대로 제공되기 때문에 데이터를 조회하려면 `request.getParameter("data")` 처럼 불편하게 접근해야 한다.
+
+이런 점을 해결하기 위해 **편의 객체**도 제공한다.
+
+- HTTP 요청 파라미터 접근: **param**
+    - 예) `${param.paramData}`
+
+- HTTP 세션 접근: **session**
+    - 예) `${session.sessionData}`
+
+- 스프링 빈 접근: **@**
+    - 예) `${@helloBean.hello('Spring!')}`
+
+`*BasicController*` **추가**
+
+```java
+@GetMapping("/basic-objects")
+public String basicObjects(HttpSession session) {
+    session.setAttribute("sessionData", "Hello Session");
+    return "basic/basic-objects";
+}
+
+@Component("helloBean")
+static class HelloBean {
+    public String hello(String data) {
+        return "Hello" + data;
+    }
+}
+```
+
+Session 은  나중에 로그인 관련하여 학습할 때 배울 것입니다. 사용자가 로그아웃이나 프로그램을 종료하기 전까지 계속 통로가 남아서 데이터가 유지되는 기능입니다.
+
+만약 Session 에 대해 모르시면 이렇게만 알아두고 넘어갑시다.
+
+`/resources/templates/basic/**basic-objects.html**`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>식 기본 객체 (Expression Basic Objects)</h1>
+<ul>
+    <li>request = <span th:text="${#request}"></span></li>
+    <li>response=<span th:text="${#response}"></span></li>
+    <li>session=<span th:text="${#session}"></span></li>
+    <li>servletContext=<span th:text="${#servletContext}"></span></li>
+    <li>locale=<span th:text="${#locale}"></span></li>
+</ul>
+<h1>편의 객체</h1>
+<ul>
+    <h1>편의 객체</h1>
+    <ul>
+        <li>Request Parameter = <span th:text="${param.paramData}"></span></li>
+        <li>session = <span th:text="${session.sessionData}"></span></li>
+        <li>spring bean = <span th:text="${@helloBean.hello('Spring!')}"></span></li>
+    </ul>
+
+</ul>
+</body>
+</html>
+```
+
+[http://localhost:8080/basic/basic-objects?paramData=HelloParam](http://localhost:8080/basic/basic-objects?paramDataaa=HelloParam)
+
+
+`request`, `response`, `session`, `servletContext` 을 그대로 호출하면 `**${#request}**` 형태로 # 을 붙여서 호출하면 위처럼 객체가 그대로 제공됩니다. 
+
+URL 을 보면 우리가 BasicController 의 `baisObjects`   라는 메서드에서 쿼리로 어떤 데이터를 넣도록 한 적이 없는데도 쿼리문이 마지막에 붙어있습니다.
+
+타임리프에서는 이러한 **`param`** 혹은 **`session`** 등은 편의객체로서 제공이 됩니다. 
+
+그리고 타임리프에서 스프링 빈에 직접 접근하는 것도 가능합니다. `@helloBean` 과 같은 형태로 접근합니다.
+
+
+
