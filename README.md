@@ -1289,3 +1289,54 @@ HTML 파일을 웹 브라우저에서 그대로 열어보면 HTML 주석이기 �
 쉽게 이야기해서 **HTML 파일을 그대로 열어보면 주석처리**가 되지만, **타임리프를 렌더링 한 경우에만
 보이는 기능**이다
 
+
+
+# 14. 블록
+
+`th:block` 은 HTML 태그가 아닌 타임리프의 유일한 자체 태그다.
+
+`BasicController` 추가
+
+```java
+@GetMapping("/block")
+public String block(Model model) {
+    addUsers(model);
+    return "basic/block";
+}
+```
+
+`/resources/templates/basic/block.html`
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<th:block th:each="user : ${users}">
+    <div>
+        사용자 이름1 <span th:text="${user.username}"></span>
+        사용자 나이1 <span th:text="${user.age}"></span>
+    </div>
+    <div>
+        요약 <span th:text="${user.username} + ' / ' + ${user.age}"></span>
+    </div>
+</th:block>
+</body>
+</html>
+```
+
+실행 결과 [http://localhost:8080/basic/block](http://localhost:8080/basic/block)
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/97b6771d-f431-4f9a-a16e-818dd7bd7ee7/Untitled.png)
+
+페이지 소스 보기
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/a920e6dc-fc25-4048-93b4-beee617b50a6/Untitled.png)
+
+**결과를 보면 each 의 반복이 두 개의 div 에서 일어나고 있다!**
+
+타임리프의 특성상 HTML 태그안에 속성으로 기능을 정의해서 사용하는데, 위 예처럼 이렇게 사용하기
+애매한 경우에 사용하면 된다. `th:block` 은 렌더링시 제거된다.
